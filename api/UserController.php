@@ -1,9 +1,9 @@
 <?php
 
 class UserController {
-    private $db;
-    private $requestMethod;
-    private $userId;
+    public $db;
+    public $requestMethod;
+    public $userId;
 
     public function __construct($db, $requestMethod, $userId)
     {
@@ -38,7 +38,7 @@ class UserController {
         }
     }
 
-    private function getAllUsers()
+    public function getAllUsers()
     {
         $query = "
             SELECT id, pseudo, mail, password, idRole 
@@ -83,7 +83,7 @@ class UserController {
         return $response;
     }
 
-    private function createUserFromRequest()
+    public function createUserFromRequest()
     {
         $input = (array) json_decode(file_get_contents('php://input'), TRUE);
         if (!$this->validateUser($input)) {
@@ -113,7 +113,7 @@ class UserController {
         return $response;
     }
 
-    private function updateUserFromRequest($id)
+    public function updateUserFromRequest($id)
     {
         $input = (array) json_decode(file_get_contents('php://input'), TRUE);
         if (!$this->validateUser($input, $id)) {
@@ -144,7 +144,7 @@ class UserController {
         return $response;
     }
 
-    private function validateUser($input, $id = null)
+    public function validateUser($input, $id = null)
     {
         if (isset($id)) {
             if (!is_numeric($id)) {
@@ -157,7 +157,7 @@ class UserController {
         return true;
     }
 
-    private function errorResponse()
+    public function errorResponse()
     {
         return [
             'status_code_header' => 'HTTP/1.1 500 Internal Server Error',
@@ -165,7 +165,7 @@ class UserController {
         ];
     }
 
-    private function unprocessableEntityResponse()
+    public function unprocessableEntityResponse()
     {
         return [
             'status_code_header' => 'HTTP/1.1 422 Unprocessable Entity',
@@ -175,7 +175,7 @@ class UserController {
         ];
     }
 
-    private function notFoundResponse()
+    public function notFoundResponse()
     {
         return [
             'status_code_header' => 'HTTP/1.1 404 Not Found',

@@ -1,9 +1,9 @@
 <?php
 
 class RDVController {
-    private $db;
-    private $requestMethod;
-    private $rdvId;
+    public $db;
+    public $requestMethod;
+    public $rdvId;
 
     public function __construct($db, $requestMethod, $rdvId)
     {
@@ -38,7 +38,7 @@ class RDVController {
         }
     }
 
-    private function getAllRDVs()
+    public function getAllRDVs()
     {
         $query = "
             SELECT id, idUserClient, idUserMedecin, date, timeStart, timeEnd
@@ -83,7 +83,7 @@ class RDVController {
         return $response;
     }
 
-    private function createRDVFromRequest()
+    public function createRDVFromRequest()
     {
         $input = (array) json_decode(file_get_contents('php://input'), TRUE);
         if (!$this->validateRDV($input)) {
@@ -114,7 +114,7 @@ class RDVController {
         return $response;
     }
 
-    private function updateRDVFromRequest($id)
+    public function updateRDVFromRequest($id)
     {
         $input = (array) json_decode(file_get_contents('php://input'), TRUE);
         if (!$this->validateRDV($input, true)) {
@@ -146,7 +146,7 @@ class RDVController {
         return $response;
     }
 
-    private function validateRDV($input, $isUpdate = false)
+    public function validateRDV($input, $isUpdate = false)
     {
         if ($isUpdate && !isset($input['id'])) {
             return false;
@@ -158,7 +158,7 @@ class RDVController {
         return true;
     }
 
-    private function errorResponse()
+    public function errorResponse()
     {
         return [
             'status_code_header' => 'HTTP/1.1 500 Internal Server Error',
@@ -166,7 +166,7 @@ class RDVController {
         ];
     }
 
-    private function unprocessableEntityResponse()
+    public function unprocessableEntityResponse()
     {
         return [
             'status_code_header' => 'HTTP/1.1 422 Unprocessable Entity',
@@ -176,7 +176,7 @@ class RDVController {
         ];
     }
 
-    private function notFoundResponse()
+    public function notFoundResponse()
     {
         return [
             'status_code_header' => 'HTTP/1.1 404 Not Found',
