@@ -35,7 +35,7 @@ class RoleController {
         }
     }
 
-    private function getAllRoles()
+    public function getAllRoles()
     {
         $query = "SELECT id, label FROM roles;";
         try {
@@ -49,7 +49,7 @@ class RoleController {
         return $response;
     }
 
-    private function getRole($id)
+    public function getRole($id)
     {
         $query = "SELECT id, label FROM roles WHERE id = ?;";
         try {
