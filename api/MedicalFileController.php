@@ -1,9 +1,9 @@
 <?php
 
 class MedicalFileController {
-    private $db;
-    private $requestMethod;
-    private $userId;
+    public $db;
+    public $requestMethod;
+    public $userId;
 
     public function __construct($db, $requestMethod, $userId)
     {
@@ -34,7 +34,7 @@ class MedicalFileController {
         }
     }
 
-    private function getMedicalFile($id)
+    public function getMedicalFile($id)
     {
         $query = "
             SELECT * FROM medical_files
@@ -59,7 +59,7 @@ class MedicalFileController {
         return $response;
     }
 
-    private function createMedicalFileFromRequest()
+    public function createMedicalFileFromRequest()
     {
         $input = (array) json_decode(file_get_contents('php://input'), TRUE);
         if (!$this->validateMedicalFile($input)) {
@@ -88,7 +88,7 @@ class MedicalFileController {
         return $response;
     }
 
-    private function updateMedicalFileFromRequest($id)
+    public function updateMedicalFileFromRequest($id)
     {
         $input = (array) json_decode(file_get_contents('php://input'), TRUE);
         if (!$this->validateMedicalFile($input, true)) {
@@ -117,7 +117,7 @@ class MedicalFileController {
         return $response;
     }
 
-    private function validateMedicalFile($input, $isUpdate = false)
+    public function validateMedicalFile($input, $isUpdate = false)
     {
         if ($isUpdate && !isset($input['idUser'])) {
             return false;
@@ -128,7 +128,7 @@ class MedicalFileController {
         return true;
     }
 
-    private function errorResponse()
+    public function errorResponse()
     {
         return [
             'status_code_header' => 'HTTP/1.1 500 Internal Server Error',
@@ -136,7 +136,7 @@ class MedicalFileController {
         ];
     }
 
-    private function unprocessableEntityResponse()
+    public function unprocessableEntityResponse()
     {
         return [
             'status_code_header' => 'HTTP/1.1 422 Unprocessable Entity',
@@ -146,7 +146,7 @@ class MedicalFileController {
         ];
     }
 
-    private function notFoundResponse()
+    public function notFoundResponse()
     {
         return [
             'status_code_header' => 'HTTP/1.1 404 Not Found',

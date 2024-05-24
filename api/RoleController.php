@@ -1,9 +1,9 @@
 <?php
 
 class RoleController {
-    private $db;
-    private $requestMethod;
-    private $roleId;
+    public $db;
+    public $requestMethod;
+    public $roleId;
 
     public function __construct($db, $requestMethod, $roleId)
     {
@@ -35,7 +35,7 @@ class RoleController {
         }
     }
 
-    private function getAllRoles()
+    public function getAllRoles()
     {
         $query = "SELECT id, label FROM roles;";
         try {
@@ -49,7 +49,7 @@ class RoleController {
         return $response;
     }
 
-    private function getRole($id)
+    public function getRole($id)
     {
         $query = "SELECT id, label FROM roles WHERE id = ?;";
         try {
@@ -69,7 +69,7 @@ class RoleController {
         return $response;
     }
 
-    private function createRoleFromRequest()
+    public function createRoleFromRequest()
     {
         $input = (array) json_decode(file_get_contents('php://input'), TRUE);
         if (!isset($input['label'])) {
@@ -88,7 +88,7 @@ class RoleController {
         return $response;
     }
 
-    private function errorResponse()
+    public function errorResponse()
     {
         return [
             'status_code_header' => 'HTTP/1.1 500 Internal Server Error',
@@ -96,7 +96,7 @@ class RoleController {
         ];
     }
 
-    private function unprocessableEntityResponse()
+    public function unprocessableEntityResponse()
     {
         return [
             'status_code_header' => 'HTTP/1.1 422 Unprocessable Entity',
@@ -104,7 +104,7 @@ class RoleController {
         ];
     }
 
-    private function notFoundResponse()
+    public function notFoundResponse()
     {
         return [
             'status_code_header' => 'HTTP/1.1 404 Not Found',
