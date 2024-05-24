@@ -1,15 +1,11 @@
 <?php
 header("Content-Type: application/json");
+require_once '../config/config.php';
+require_once '../src/ApiController.php';
 
-$uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
-$uri = explode('/', $uri);
+$requestMethod = $_SERVER["REQUEST_METHOD"];
+$requestUri = explode('/', trim($_SERVER['REQUEST_URI'], '/'));
 
-if ($uri[1] !== 'api') {
-    header("HTTP/1.1 404 Not Found");
-    exit();
-}
-
-require_once "../src/ApiController.php";
-
-$controller = new ApiController();
-$controller->processRequest($_SERVER["REQUEST_METHOD"], $uri);
+$apiController = new ApiController($pdo);
+$apiController->handleRequest($requestMethod, $requestUri);
+?>
