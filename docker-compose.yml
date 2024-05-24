@@ -1,0 +1,37 @@
+version: "3.8"
+
+services:
+  app:
+    image: php:7.4-apache
+    container_name: healthconnect_app
+    volumes:
+      - ./HealthConnect_Back:/var/www/html
+    ports:
+      - "8000:80"
+    depends_on:
+      - db
+    networks:
+      - healthconnect_net
+
+  db:
+    image: mysql:latest
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: healthconnect
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password
+    volumes:
+      - db_data:/var/lib/mysql
+    networks:
+      - healthconnect_net
+
+  # Ce connecter à la db du docker
+  # docker exec -it idConteneur bash
+  # mysql -u user -ppassword healthconnect
+
+networks:
+  healthconnect_net:
+    driver: bridge
+
+volumes:
+  db_data:
