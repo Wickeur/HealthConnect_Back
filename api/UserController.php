@@ -57,7 +57,7 @@ class UserController {
         return $response;
     }
 
-    private function getUser($id)
+    public function getUser($id)
     {
         $query = "
             SELECT id, pseudo, mail, password, idRole 

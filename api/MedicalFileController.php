@@ -34,7 +34,7 @@ class MedicalFileController {
         }
     }
 
-    private function getMedicalFile($id)
+    public function getMedicalFile($id)
     {
         $query = "
             SELECT * FROM medical_files

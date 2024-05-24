@@ -57,7 +57,7 @@ class RDVController {
         return $response;
     }
 
-    private function getRDV($id)
+    public function getRDV($id)
     {
         $query = "
             SELECT id, idUserClient, idUserMedecin, date, timeStart, timeEnd
