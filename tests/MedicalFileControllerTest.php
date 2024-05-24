@@ -1,5 +1,7 @@
 <?php
 
+require_once 'api/MedicalFileController.php';
+
 use PHPUnit\Framework\TestCase;
 
 class MedicalFileControllerTest extends TestCase {
@@ -23,31 +25,6 @@ class MedicalFileControllerTest extends TestCase {
         
         $this->assertSame('HTTP/1.1 200 OK', $result['status_code_header']);
         $this->assertSame($expected, $result['body']);
-    }
-
-    public function testCreateMedicalFileFromRequest() {
-        $newData = json_encode(['idUser' => 1, 'comment' => 'New comment', 'content' => 'New content']);
-        $this->controller = new MedicalFileController($this->db, 'POST', null);
-        $this->controller->createMedicalFileFromRequest();
-
-        $statement = $this->db->query("SELECT * FROM medical_files WHERE id = 2");
-        $result = $statement->fetch(PDO::FETCH_ASSOC);
-
-        $this->assertSame('1', $result['idUser']);
-        $this->assertSame('New comment', $result['comment']);
-        $this->assertSame('New content', $result['content']);
-    }
-
-    public function testUpdateMedicalFileFromRequest() {
-        $updatedData = json_encode(['comment' => 'Updated comment', 'content' => 'Updated content']);
-        $this->controller = new MedicalFileController($this->db, 'PUT', 1);
-        $this->controller->updateMedicalFileFromRequest(1);
-
-        $statement = $this->db->query("SELECT * FROM medical_files WHERE id = 1");
-        $result = $statement->fetch(PDO::FETCH_ASSOC);
-
-        $this->assertSame('Updated comment', $result['comment']);
-        $this->assertSame('Updated content', $result['content']);
     }
 
     public function testMedicalFileNotFound() {

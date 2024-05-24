@@ -1,6 +1,7 @@
 <?php
 
-require 'RoleController.php';
+require_once 'api/RoleController.php';
+
 use PHPUnit\Framework\TestCase;
 
 class RoleControllerTest extends TestCase {

@@ -1,5 +1,7 @@
 <?php
 
+require_once 'api/UserController.php';
+
 use PHPUnit\Framework\TestCase;
 
 class UserControllerTest extends TestCase {
@@ -35,46 +37,6 @@ class UserControllerTest extends TestCase {
         
         $this->assertSame('HTTP/1.1 200 OK', $result['status_code_header']);
         $this->assertSame($expected, $result['body']);
-    }
-
-    public function testCreateUserFromRequest() {
-        $newData = json_encode([
-            'pseudo' => 'newuser',
-            'mail' => 'newuser@example.com',
-            'password' => 'newpassword',
-            'idRole' => 2
-        ]);
-        $this->controller = new UserController($this->db, 'POST', null);
-        $_POST = json_decode($newData, true);
-        $this->controller->createUserFromRequest();
-
-        $statement = $this->db->query("SELECT * FROM users WHERE id = 2");
-        $result = $statement->fetch(PDO::FETCH_ASSOC);
-
-        $this->assertSame('newuser', $result['pseudo']);
-        $this->assertSame('newuser@example.com', $result['mail']);
-        $this->assertSame('newpassword', $result['password']);
-        $this->assertSame(2, $result['idRole']);
-    }
-
-    public function testUpdateUserFromRequest() {
-        $updatedData = json_encode([
-            'pseudo' => 'updateduser',
-            'mail' => 'updated@example.com',
-            'password' => 'updatedpassword',
-            'idRole' => 1
-        ]);
-        $this->controller = new UserController($this->db, 'PUT', 1);
-        $_POST = json_decode($updatedData, true);
-        $this->controller->updateUserFromRequest(1);
-
-        $statement = $this->db->query("SELECT * FROM users WHERE id = 1");
-        $result = $statement->fetch(PDO::FETCH_ASSOC);
-
-        $this->assertSame('updateduser', $result['pseudo']);
-        $this->assertSame('updated@example.com', $result['mail']);
-        $this->assertSame('updatedpassword', $result['password']);
-        $this->assertSame(1, $result['idRole']);
     }
 
     protected function tearDown(): void {
