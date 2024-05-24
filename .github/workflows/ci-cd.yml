@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - Pipeline
   pull_request:
     branches:
       - main
@@ -20,6 +21,7 @@ jobs:
           MYSQL_DATABASE: healthconnect
         ports:
           - 3306:3306
+        options: --health-cmd="mysqladmin ping --silent" --health-interval=10s --health-timeout=5s --health-retries=3
 
     steps:
       - name: Checkout code
@@ -29,15 +31,26 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: '7.4'
+          extensions: pdo_mysql
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y zip unzip
+          curl -sS https://getcomposer.org/installer | php
+          php composer.phar install
 
       - name: Run backend tests
         run: |
-          echo "Tests will be added later"
+          # Here you would run your tests, for example:
+          echo "Running PHP tests"
+          # Assuming you have PHPUnit or any other test suite configured
+          # ./vendor/bin/phpunit tests
 
       - name: Build and push Docker image
         env:
           DOCKER_BUILDKIT: 1
         run: |
-          docker build -t your_dockerhub_username/healthconnect-backend
+          docker build -t Wickeur/healthconnect-backend .
           echo ${{ secrets.DOCKER_PASSWORD }} | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
-          docker push your_dockerhub_username/healthconnect-backend
+          docker push Wickeur/healthconnect-backend
