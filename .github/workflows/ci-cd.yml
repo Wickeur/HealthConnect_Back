@@ -4,13 +4,13 @@ on:
   push:
     branches:
       - main
-      - Pipeline
+      - connectVPS
   pull_request:
     branches:
       - main
 
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
 
     services:
@@ -41,16 +41,41 @@ jobs:
           php composer.phar install
 
       - name: Run backend tests
-        run: |
-          # Here you would run your tests, for example:
-          echo "Running PHP tests"
-          # Assuming you have PHPUnit or any other test suite configured
-          # ./vendor/bin/phpunit tests
+        run: ./vendor/bin/phpunit
 
-      - name: Build and push Docker image
-        env:
-          DOCKER_BUILDKIT: 1
+  build:
+    needs: test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Build Docker image
         run: |
-          docker build -t Wickeur/healthconnect-backend .
-          echo ${{ secrets.DOCKER_PASSWORD }} | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
-          docker push Wickeur/healthconnect-backend
+          docker build -t healthconnect-backend:${{ github.sha }} .
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Deploy to VPS
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USERNAME }}
+          password: ${{ secrets.VPS_PASSWORD }}
+          script: |
+            cd /var/www/HealthConnect/healthconnect-backend
+            git pull
+            docker stop backend || true
+            docker rm backend || true
+            docker run -d --name backend -p 3000:3000 healthconnect-backend:${{ github.sha }}
+            # Assuming you use Composer on your server
+            composer install --no-dev
+            # Restart your PHP service if necessary, e.g., if you are using PHP-FPM:
+            sudo systemctl restart php7.4-fpm
