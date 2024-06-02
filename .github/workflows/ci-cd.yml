@@ -4,13 +4,12 @@ on:
   push:
     branches:
       - main
-      - Pipeline
   pull_request:
     branches:
       - main
 
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
 
     services:
@@ -27,30 +26,39 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Set up PHP
+      - name: Set up PHP 8.2
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '7.4'
+          php-version: '8.2'
           extensions: pdo_mysql
 
       - name: Install dependencies
         run: |
-          sudo apt-get update
-          sudo apt-get install -y zip unzip
-          curl -sS https://getcomposer.org/installer | php
-          php composer.phar install
+          composer install --no-cache --no-ansi --no-interaction --no-progress --no-suggest --optimize-autoloader
 
+      - name: Make PHPUnit executable
+        run: chmod +x vendor/bin/phpunit
+  
       - name: Run backend tests
-        run: |
-          # Here you would run your tests, for example:
-          echo "Running PHP tests"
-          # Assuming you have PHPUnit or any other test suite configured
-          # ./vendor/bin/phpunit tests
+        run: vendor/bin/phpunit
 
-      - name: Build and push Docker image
-        env:
-          DOCKER_BUILDKIT: 1
-        run: |
-          docker build -t Wickeur/healthconnect-backend .
-          echo ${{ secrets.DOCKER_PASSWORD }} | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
-          docker push Wickeur/healthconnect-backend
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Deploy Frontend to VPS
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.VPS_HOST }}
+        username: ${{ secrets.VPS_USERNAME }}
+        password: ${{ secrets.VPS_PASSWORD }}
+        script: |
+          cd /var/www/HealthConnect/healthconnect-backend
+          git pull
+          docker build -t healthconnect-backend:${{ github.sha }} .
+          docker stop frontend || true
+          docker rm frontend || true
+          docker run -d --name frontend -p 8080:80 healthconnect-backend:${{ github.sha }}

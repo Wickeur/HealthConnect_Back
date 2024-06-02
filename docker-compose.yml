@@ -20,7 +20,7 @@ services:
     ports:
       - "3000:80"
     volumes:
-      - ./HealthConnect_Back/src:/var/www/html
+      - ./src:/var/www/html
     container_name: healthconnect_app
     networks:
       - healthconnect_net
