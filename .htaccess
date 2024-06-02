@@ -1,0 +1,25 @@
+RewriteEngine On
+
+# Rediriger le trafic HTTP vers HTTPS (si SSL est utilisé)
+RewriteCond %{HTTPS} off
+RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+# Assurer que toutes les requêtes sont redirigées vers index.php
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^ index.php [QSA,L]
+
+# Configurations additionnelles
+Options -Indexes
+Order allow,deny
+Allow from all
+
+# Spécifiez les types de fichiers que vous souhaitez cacher ou bloquer
+<FilesMatch "\.(htaccess|htpasswd|ini|phps|fla|psd|log|sh)$">
+    Order Allow,Deny
+    Deny from all
+</FilesMatch>
+
+# Configurer les en-têtes pour CORS
+Header set Access-Control-Allow-Origin "*"
+Header set Access-Control-Allow-Methods "GET, 

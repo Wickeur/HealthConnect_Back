@@ -1,6 +1,6 @@
 <?php
 
-require_once 'api/UserController.php';
+require_once 'src/UserController.php';
 
 use PHPUnit\Framework\TestCase;
 

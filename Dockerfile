@@ -1,14 +1,19 @@
-# Dockerfile pour le back-end PHP
+# Use an official PHP runtime as a parent image
 FROM php:7.4-apache
 
-# Copier les fichiers du projet
-COPY public/ /var/www/html/
+# Set the working directory in the container
+WORKDIR /var/www/html
 
-# Installer les extensions PHP nécessaires
-RUN docker-php-ext-install mysqli pdo pdo_mysql
+# Copy your PHP application code into the container
+COPY . .
 
-RUN chown -R www-data:www-data /var/www/html
-RUN chmod -R 755 /var/www/html
+# Install PHP extensions and other dependencies
+RUN apt-get update && \
+    apt-get install -y libpng-dev && \
+    docker-php-ext-install pdo pdo_mysql gd
 
-# Exposer le port 80
+# Expose the port Apache listens on
 EXPOSE 80
+
+# Start Apache when the container runs
+CMD ["apache2-foreground"]

@@ -1,6 +1,6 @@
 <?php
 
-require_once 'api/MedicalFileController.php';
+require_once 'src/MedicalFileController.php';
 
 use PHPUnit\Framework\TestCase;
 

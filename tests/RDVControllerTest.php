@@ -1,6 +1,6 @@
 <?php
 
-require_once 'api/RDVController.php';
+require_once 'src/RDVController.php';
 
 use PHPUnit\Framework\TestCase;
 
