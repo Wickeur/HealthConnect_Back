@@ -70,8 +70,7 @@ jobs:
           username: ${{ secrets.VPS_USERNAME }}
           password: ${{ secrets.VPS_PASSWORD }}
           script: |
-            cd /var/www/HealthConnect/healthconnect-backend
-            git pull
+            docker pull healthconnect-backend:${{ github.sha }} || true 
             docker stop backend || true
             docker rm backend || true
             docker run -d --name backend -p 3000:80 healthconnect-backend:${{ github.sha }}
