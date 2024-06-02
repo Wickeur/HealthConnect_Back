@@ -27,18 +27,15 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Set up PHP
+      - name: Set up PHP 8.2
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '7.4'
+          php-version: '8.2'
           extensions: pdo_mysql
 
       - name: Install dependencies
         run: |
-          sudo apt-get update
-          sudo apt-get install -y zip unzip
-          curl -sS https://getcomposer.org/installer | php
-          php composer.phar install
+          composer install --no-dev
 
       - name: Run backend tests
         run: ./vendor/bin/phpunit
