@@ -1,6 +1,6 @@
 <?php
 
-require_once 'api/RoleController.php';
+require_once 'src/RoleController.php';
 
 use PHPUnit\Framework\TestCase;
 
