@@ -1,15 +1,27 @@
-version: "3.8"
+version: "3.9"
 
 services:
-  app:
-    image: php:7.4-apache
-    container_name: healthconnect_app
-    volumes:
-      - ./HealthConnect_Back:/var/www/html
+  apache:
+      image: php:7.4-apache
+      volumes:
+        - ./apache/apache.conf:/etc/apache2/sites-available/000-default.conf
+      ports:
+        - "3001:80"
+      depends_on:
+        - api
+      networks:
+        - healthconnect_net
+
+  api:
+    depends_on:
+      - db #je dépends de la base de donnée
+    build:
+      context: .
     ports:
       - "3000:80"
-    depends_on:
-      - db
+    volumes:
+      - ./HealthConnect_Back/src:/var/www/html
+    container_name: healthconnect_app
     networks:
       - healthconnect_net
 
