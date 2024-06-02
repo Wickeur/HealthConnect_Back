@@ -37,6 +37,9 @@ jobs:
         run: |
           composer install --no-dev
 
+      - name: Verify PHPUnit installation
+        run: ls -l ./vendor/bin
+
       - name: Run backend tests
         run: ./vendor/bin/phpunit
 
