@@ -75,4 +75,3 @@ jobs:
             docker stop backend || true
             docker rm backend || true
             docker run -d --name backend -p 3000:3000 healthconnect-backend:${{ github.sha }}
-            composer install --no-cache --no-ansi --no-interaction --no-progress --no-suggest --optimize-autoloader
