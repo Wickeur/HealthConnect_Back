@@ -43,8 +43,7 @@ jobs:
       - name: Run backend tests
         run: vendor/bin/phpunit
 
-  build-deploy:
-    needs: build
+  build-and-deploy:
     runs-on: ubuntu-latest
 
     steps:
