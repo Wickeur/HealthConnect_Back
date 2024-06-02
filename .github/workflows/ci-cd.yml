@@ -57,9 +57,9 @@ jobs:
           username: ${{ secrets.VPS_USERNAME }}
           password: ${{ secrets.VPS_PASSWORD }}
           script: |
-            cd /var/www/HealthConnect/HealthConnect_Back
+            cd /var/www/HealthConnect/healthconnect-backend
             git pull
-            docker build -t HealthConnect_Back:${{ github.sha }} .
+            docker build -t healthconnect-backend:${{ github.sha }} .
             docker stop frontend || true
             docker rm frontend || true
-            docker run -d --name frontend -p 8080:80 HealthConnect_Back:${{ github.sha }}
+            docker run -d --name frontend -p 8080:80 healthconnect-backend:${{ github.sha }}
