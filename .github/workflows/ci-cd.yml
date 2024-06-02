@@ -27,27 +27,22 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Check current directory
-        run: pwd
-
-      - name: List files in the current directory
-        run: ls -la
-
-      - name: Set up PHP
+      - name: Set up PHP 8.2
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '7.4'
+          php-version: '8.2'
           extensions: pdo_mysql
 
       - name: Install dependencies
         run: |
-          composer install
-
-      - name: List files in vendor directory
-        run: ls -la vendor/
+          composer install --no-cache --no-ansi --no-interaction --no-progress --no-suggest --optimize-autoloader
 
       - name: Run backend tests
-        run: ./vendor/bin/phpunit
+        run: |
+          chmod +x vendor/bin/phpunit tests/MedicalFileControllerTest.php
+          chmod +x vendor/bin/phpunit tests/RDVControllerTest.php
+          chmod +x vendor/bin/phpunit tests/RoleControllerTest.php
+          chmod +x vendor/bin/phpunit tests/UserControllerTest.php
 
   build:
     needs: test
