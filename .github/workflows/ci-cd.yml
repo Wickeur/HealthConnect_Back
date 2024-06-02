@@ -74,4 +74,4 @@ jobs:
             git pull
             docker stop backend || true
             docker rm backend || true
-            docker run -d --name backend -p 3000:3000 healthconnect-backend:${{ github.sha }}
+            docker run -d --name backend -p 3000:80 healthconnect-backend:${{ github.sha }}
