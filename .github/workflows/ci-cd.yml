@@ -73,10 +73,7 @@ jobs:
           script: |
             cd /var/www/HealthConnect/healthconnect-backend
             git pull
+            composer install --no-cache --no-ansi --no-interaction --no-progress --no-suggest --optimize-autoloader
             docker stop backend || true
             docker rm backend || true
             docker run -d --name backend -p 3000:3000 healthconnect-backend:${{ github.sha }}
-            # Assuming you use Composer on your server
-            composer install --no-dev
-            # Restart your PHP service if necessary, e.g., if you are using PHP-FPM:
-            sudo systemctl restart php7.4-fpm
