@@ -21,36 +21,38 @@ $dbname = "healthconnect";
 
 try {
     $conn = new PDO("mysql:host=$servername;dbname=$dbname", $username, $password);
-    // set the PDO error mode to exception
     $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 } catch(PDOException $e) {
-    echo "Erreur de connexion à la base de données : " . $e->getMessage();
+    http_response_code(500);
+    echo json_encode(["error" => "Erreur de connexion à la base de données : " . $e->getMessage()]);
     exit;
 }
 
-// Récupération des données à partir de la base de données en fonction de l'URL demandée
-$uri = $_SERVER['REQUEST_URI'];
-
 $requestMethod = $_SERVER["REQUEST_METHOD"];
 
+// Extraction de la partie de l'URL après le domaine
+$resource = $uri[1] ?? '';
+$id = $uri[2] ?? null;
+
 // Determine the controller to use
-switch ($uri) {
-    case '/role':
-        $controller = new RoleController($db, $requestMethod, $id);
+switch ($resource) {
+    case 'role':
+        $controller = new RoleController($conn, $requestMethod, $id);
         break;
-    case '/user':
-        $controller = new UserController($db, $requestMethod, $id);
+    case 'user':
+        $controller = new UserController($conn, $requestMethod, $id);
         break;
-    case '/medicalFile':
-        $controller = new MedicalFileController($db, $requestMethod, $id);
+    case 'medicalFile':
+        $controller = new MedicalFileController($conn, $requestMethod, $id);
         break;
-    case '/RDV':
-        $controller = new RDVController($db, $requestMethod, $id);
+    case 'RDV':
+        $controller = new RDVController($conn, $requestMethod, $id);
         break;
     default:
         http_response_code(404);
         echo json_encode(['error' => 'Route non reconnue']);
-        break;
+        exit;
 }
 
 $controller->processRequest();
+?>
