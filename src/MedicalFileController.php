@@ -1,9 +1,9 @@
 <?php
 
 class MedicalFileController {
-    public $db;
-    public $requestMethod;
-    public $userId;
+    private $db;
+    private $requestMethod;
+    private $userId;
 
     public function __construct($db, $requestMethod, $userId)
     {
@@ -34,7 +34,7 @@ class MedicalFileController {
         }
     }
 
-    public function getMedicalFile($id)
+    private function getMedicalFile($id)
     {
         $query = "
             SELECT * FROM medical_files
@@ -43,7 +43,7 @@ class MedicalFileController {
 
         try {
             $statement = $this->db->prepare($query);
-            $statement->execute(array($id));
+            $statement->execute([$id]);
             $result = $statement->fetch(PDO::FETCH_ASSOC);
 
             if (!$result) {
@@ -53,13 +53,13 @@ class MedicalFileController {
             $response['status_code_header'] = 'HTTP/1.1 200 OK';
             $response['body'] = json_encode($result);
         } catch (\PDOException $e) {
-            $response = $this->errorResponse();
+            return $this->errorResponse($e->getMessage());
         }
 
         return $response;
     }
 
-    public function createMedicalFileFromRequest()
+    private function createMedicalFileFromRequest()
     {
         $input = (array) json_decode(file_get_contents('php://input'), TRUE);
         if (!$this->validateMedicalFile($input)) {
@@ -67,8 +67,7 @@ class MedicalFileController {
         }
 
         $query = "
-            INSERT INTO medical_files
-            (idUser, comment, content)
+            INSERT INTO medical_files (idUser, comment, content)
             VALUES (?, ?, ?);
         ";
 
@@ -82,16 +81,16 @@ class MedicalFileController {
             $response['status_code_header'] = 'HTTP/1.1 201 Created';
             $response['body'] = null;
         } catch (\PDOException $e) {
-            $response = $this->errorResponse();
+            return $this->errorResponse($e->getMessage());
         }
 
         return $response;
     }
 
-    public function updateMedicalFileFromRequest($id)
+    private function updateMedicalFileFromRequest($id)
     {
         $input = (array) json_decode(file_get_contents('php://input'), TRUE);
-        if (!$this->validateMedicalFile($input, true)) {
+        if (!$this->validateMedicalFile($input)) {
             return $this->unprocessableEntityResponse();
         }
 
@@ -111,48 +110,42 @@ class MedicalFileController {
             $response['status_code_header'] = 'HTTP/1.1 200 OK';
             $response['body'] = null;
         } catch (\PDOException $e) {
-            $response = $this->errorResponse();
+            return $this->errorResponse($e->getMessage());
         }
 
         return $response;
     }
 
-    public function validateMedicalFile($input, $isUpdate = false)
+    private function validateMedicalFile($input)
     {
-        if ($isUpdate && !isset($input['idUser'])) {
-            return false;
-        }
-        if (!isset($input['comment']) || !isset($input['content'])) {
+        if (!isset($input['idUser']) || !isset($input['comment']) || !isset($input['content'])) {
             return false;
         }
         return true;
     }
 
-    public function errorResponse()
+    private function errorResponse($message)
     {
         return [
             'status_code_header' => 'HTTP/1.1 500 Internal Server Error',
-            'body' => null
+            'body' => json_encode(['error' => $message])
         ];
     }
 
-    public function unprocessableEntityResponse()
+    private function unprocessableEntityResponse()
     {
         return [
             'status_code_header' => 'HTTP/1.1 422 Unprocessable Entity',
-            'body' => json_encode([
-                'error' => 'Invalid input'
-            ])
+            'body' => json_encode(['error' => 'Invalid input'])
         ];
     }
 
-    public function notFoundResponse()
+    private function notFoundResponse()
     {
         return [
             'status_code_header' => 'HTTP/1.1 404 Not Found',
-            'body' => json_encode([
-                'error' => 'Not Found'
-            ])
+            'body' => json_encode(['error' => 'Not Found'])
         ];
     }
 }
+?>
