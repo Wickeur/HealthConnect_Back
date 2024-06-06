@@ -32,6 +32,7 @@ class MedicalFileControllerTest extends TestCase {
         $result = $this->controller->getMedicalFile(999);
         
         $this->assertSame('HTTP/1.1 404 Not Found', $result['status_code_header']);
+        $this->assertJsonStringEqualsJsonString(json_encode(['error' => 'Not Found']), $result['body']);
     }
 
     protected function tearDown(): void {
