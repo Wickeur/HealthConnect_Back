@@ -1,9 +1,9 @@
 <?php
 
 class RDVController {
-    public $db;
-    public $requestMethod;
-    public $rdvId;
+    private $db;
+    private $requestMethod;
+    private $rdvId;
 
     public function __construct($db, $requestMethod, $rdvId)
     {
@@ -20,7 +20,7 @@ class RDVController {
                     $response = $this->getRDV($this->rdvId);
                 } else {
                     $response = $this->getAllRDVs();
-                };
+                }
                 break;
             case 'POST':
                 $response = $this->createRDVFromRequest();
@@ -38,7 +38,7 @@ class RDVController {
         }
     }
 
-    public function getAllRDVs()
+    private function getAllRDVs()
     {
         $query = "
             SELECT id, idUserClient, idUserMedecin, date, timeStart, timeEnd
@@ -48,16 +48,18 @@ class RDVController {
         try {
             $statement = $this->db->query($query);
             $result = $statement->fetchAll(PDO::FETCH_ASSOC);
-            $response['status_code_header'] = 'HTTP/1.1 200 OK';
-            $response['body'] = json_encode($result);
+            $response = [
+                'status_code_header' => 'HTTP/1.1 200 OK',
+                'body' => json_encode($result)
+            ];
         } catch (\PDOException $e) {
-            $response = $this->errorResponse();
+            $response = $this->errorResponse($e->getMessage());
         }
 
         return $response;
     }
 
-    public function getRDV($id)
+    private function getRDV($id)
     {
         $query = "
             SELECT id, idUserClient, idUserMedecin, date, timeStart, timeEnd
@@ -67,23 +69,25 @@ class RDVController {
 
         try {
             $statement = $this->db->prepare($query);
-            $statement->execute(array($id));
+            $statement->execute([$id]);
             $result = $statement->fetch(PDO::FETCH_ASSOC);
 
             if (!$result) {
                 return $this->notFoundResponse();
             }
 
-            $response['status_code_header'] = 'HTTP/1.1 200 OK';
-            $response['body'] = json_encode($result);
+            $response = [
+                'status_code_header' => 'HTTP/1.1 200 OK',
+                'body' => json_encode($result)
+            ];
         } catch (\PDOException $e) {
-            $response = $this->errorResponse();
+            $response = $this->errorResponse($e->getMessage());
         }
 
         return $response;
     }
 
-    public function createRDVFromRequest()
+    private function createRDVFromRequest()
     {
         $input = (array) json_decode(file_get_contents('php://input'), TRUE);
         if (!$this->validateRDV($input)) {
@@ -91,8 +95,7 @@ class RDVController {
         }
 
         $query = "
-            INSERT INTO rdvs
-            (idUserClient, idUserMedecin, date, timeStart, timeEnd)
+            INSERT INTO rdvs (idUserClient, idUserMedecin, date, timeStart, timeEnd)
             VALUES (?, ?, ?, ?, ?);
         ";
 
@@ -105,19 +108,21 @@ class RDVController {
                 $input['timeStart'],
                 $input['timeEnd']
             ]);
-            $response['status_code_header'] = 'HTTP/1.1 201 Created';
-            $response['body'] = null;
+            $response = [
+                'status_code_header' => 'HTTP/1.1 201 Created',
+                'body' => null
+            ];
         } catch (\PDOException $e) {
-            $response = $this->errorResponse();
+            $response = $this->errorResponse($e->getMessage());
         }
 
         return $response;
     }
 
-    public function updateRDVFromRequest($id)
+    private function updateRDVFromRequest($id)
     {
         $input = (array) json_decode(file_get_contents('php://input'), TRUE);
-        if (!$this->validateRDV($input, true)) {
+        if (!$this->validateRDV($input)) {
             return $this->unprocessableEntityResponse();
         }
 
@@ -137,20 +142,19 @@ class RDVController {
                 $input['timeEnd'],
                 $id
             ]);
-            $response['status_code_header'] = 'HTTP/1.1 200 OK';
-            $response['body'] = null;
+            $response = [
+                'status_code_header' => 'HTTP/1.1 200 OK',
+                'body' => null
+            ];
         } catch (\PDOException $e) {
-            $response = $this->errorResponse();
+            $response = $this->errorResponse($e->getMessage());
         }
 
         return $response;
     }
 
-    public function validateRDV($input, $isUpdate = false)
+    private function validateRDV($input)
     {
-        if ($isUpdate && !isset($input['id'])) {
-            return false;
-        }
         if (!isset($input['idUserClient']) || !isset($input['idUserMedecin']) ||
             !isset($input['date']) || !isset($input['timeStart']) || !isset($input['timeEnd'])) {
             return false;
@@ -158,31 +162,28 @@ class RDVController {
         return true;
     }
 
-    public function errorResponse()
+    private function errorResponse($message)
     {
         return [
             'status_code_header' => 'HTTP/1.1 500 Internal Server Error',
-            'body' => null
+            'body' => json_encode(['error' => $message])
         ];
     }
 
-    public function unprocessableEntityResponse()
+    private function unprocessableEntityResponse()
     {
         return [
             'status_code_header' => 'HTTP/1.1 422 Unprocessable Entity',
-            'body' => json_encode([
-                'error' => 'Invalid input'
-            ])
+            'body' => json_encode(['error' => 'Invalid input'])
         ];
     }
 
-    public function notFoundResponse()
+    private function notFoundResponse()
     {
         return [
             'status_code_header' => 'HTTP/1.1 404 Not Found',
-            'body' => json_encode([
-                'error' => 'Not Found'
-            ])
+            'body' => json_encode(['error' => 'Not Found'])
         ];
     }
 }
+?>
