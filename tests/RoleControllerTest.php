@@ -7,13 +7,13 @@ use PHPUnit\Framework\TestCase;
 class RoleControllerTest extends TestCase {
     private $controller;
     private $db;
-    
+
     protected function setUp(): void {
         $this->db = new PDO("sqlite::memory:");
         $this->db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
         // Création de la table et insertion de données pour le test
-        $this->db->exec("CREATE TABLE roles (id INTEGER PRIMARY KEY, label TEXT)");
+        $this->db->exec("CREATE TABLE roles (id INTEGER PRIMARY KEY AUTOINCREMENT, label TEXT)");
         $this->db->exec("INSERT INTO roles (label) VALUES ('Admin'), ('User')");
 
         $this->controller = new RoleController($this->db, 'GET', null);
@@ -44,6 +44,7 @@ class RoleControllerTest extends TestCase {
         $result = $this->controller->getRole(999);
         
         $this->assertSame('HTTP/1.1 404 Not Found', $result['status_code_header']);
+        $this->assertJsonStringEqualsJsonString(json_encode(['error' => 'Not Found']), $result['body']);
     }
 
     protected function tearDown(): void {

@@ -39,6 +39,56 @@ class UserControllerTest extends TestCase {
         $this->assertSame($expected, $result['body']);
     }
 
+    public function testUserNotFound() {
+        $this->controller = new UserController($this->db, 'GET', 999);
+        $result = $this->controller->getUser(999);
+        
+        $this->assertSame('HTTP/1.1 404 Not Found', $result['status_code_header']);
+        $this->assertJsonStringEqualsJsonString(json_encode(['error' => 'Not Found']), $result['body']);
+    }
+
+    public function testCreateUser() {
+        $this->controller = new UserController($this->db, 'POST', null);
+        
+        $input = [
+            'pseudo' => 'newuser',
+            'mail' => 'newuser@example.com',
+            'password' => 'newpassword',
+            'idRole' => 2
+        ];
+        
+        $stream = fopen('php://memory', 'r+');
+        fwrite($stream, json_encode($input));
+        rewind($stream);
+        file_put_contents('php://input', stream_get_contents($stream));
+        
+        $result = $this->controller->createUserFromRequest();
+        
+        $this->assertSame('HTTP/1.1 201 Created', $result['status_code_header']);
+        $this->assertNull($result['body']);
+    }
+
+    public function testUpdateUser() {
+        $this->controller = new UserController($this->db, 'PUT', 1);
+        
+        $input = [
+            'pseudo' => 'updateduser',
+            'mail' => 'updateduser@example.com',
+            'password' => 'updatedpassword',
+            'idRole' => 1
+        ];
+        
+        $stream = fopen('php://memory', 'r+');
+        fwrite($stream, json_encode($input));
+        rewind($stream);
+        file_put_contents('php://input', stream_get_contents($stream));
+        
+        $result = $this->controller->updateUserFromRequest(1);
+        
+        $this->assertSame('HTTP/1.1 200 OK', $result['status_code_header']);
+        $this->assertNull($result['body']);
+    }
+
     protected function tearDown(): void {
         $this->db = null;
     }
