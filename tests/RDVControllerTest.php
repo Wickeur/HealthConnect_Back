@@ -41,6 +41,14 @@ class RDVControllerTest extends TestCase {
         $this->assertSame($expected, $result['body']);
     }
 
+    public function testRDVNotFound() {
+        $this->controller = new RDVController($this->db, 'GET', 999);
+        $result = $this->controller->getRDV(999);
+        
+        $this->assertSame('HTTP/1.1 404 Not Found', $result['status_code_header']);
+        $this->assertJsonStringEqualsJsonString(json_encode(['error' => 'Not Found']), $result['body']);
+    }
+
     protected function tearDown(): void {
         $this->db = null;
     }
