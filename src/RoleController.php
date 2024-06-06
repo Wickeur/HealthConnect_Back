@@ -1,9 +1,9 @@
 <?php
 
 class RoleController {
-    public $db;
-    public $requestMethod;
-    public $roleId;
+    private $db;
+    private $requestMethod;
+    private $roleId;
 
     public function __construct($db, $requestMethod, $roleId)
     {
@@ -20,7 +20,7 @@ class RoleController {
                     $response = $this->getRole($this->roleId);
                 } else {
                     $response = $this->getAllRoles();
-                };
+                }
                 break;
             case 'POST':
                 $response = $this->createRoleFromRequest();
@@ -35,68 +35,79 @@ class RoleController {
         }
     }
 
-    public function getAllRoles()
+    private function getAllRoles()
     {
         $query = "SELECT id, label FROM roles;";
         try {
             $statement = $this->db->query($query);
             $result = $statement->fetchAll(PDO::FETCH_ASSOC);
-            $response['status_code_header'] = 'HTTP/1.1 200 OK';
-            $response['body'] = json_encode($result);
+            $response = [
+                'status_code_header' => 'HTTP/1.1 200 OK',
+                'body' => json_encode($result)
+            ];
         } catch (\PDOException $e) {
-            $response = $this->errorResponse();
+            $response = $this->errorResponse($e->getMessage());
         }
         return $response;
     }
 
-    public function getRole($id)
+    private function getRole($id)
     {
         $query = "SELECT id, label FROM roles WHERE id = ?;";
         try {
             $statement = $this->db->prepare($query);
-            $statement->execute(array($id));
+            $statement->execute([$id]);
             $result = $statement->fetch(PDO::FETCH_ASSOC);
 
             if (!$result) {
                 return $this->notFoundResponse();
             }
 
-            $response['status_code_header'] = 'HTTP/1.1 200 OK';
-            $response['body'] = json_encode($result);
+            $response = [
+                'status_code_header' => 'HTTP/1.1 200 OK',
+                'body' => json_encode($result)
+            ];
         } catch (\PDOException $e) {
-            $response = $this->errorResponse();
+            $response = $this->errorResponse($e->getMessage());
         }
         return $response;
     }
 
-    public function createRoleFromRequest()
+    private function createRoleFromRequest()
     {
         $input = (array) json_decode(file_get_contents('php://input'), TRUE);
-        if (!isset($input['label'])) {
+        if (!$this->validateRole($input)) {
             return $this->unprocessableEntityResponse();
         }
 
         $query = "INSERT INTO roles (label) VALUES (?);";
         try {
             $statement = $this->db->prepare($query);
-            $statement->execute(array($input['label']));
-            $response['status_code_header'] = 'HTTP/1.1 201 Created';
-            $response['body'] = null;
+            $statement->execute([$input['label']]);
+            $response = [
+                'status_code_header' => 'HTTP/1.1 201 Created',
+                'body' => null
+            ];
         } catch (\PDOException $e) {
-            $response = $this->errorResponse();
+            $response = $this->errorResponse($e->getMessage());
         }
         return $response;
     }
 
-    public function errorResponse()
+    private function validateRole($input)
+    {
+        return isset($input['label']);
+    }
+
+    private function errorResponse($message)
     {
         return [
             'status_code_header' => 'HTTP/1.1 500 Internal Server Error',
-            'body' => json_encode(['error' => 'Internal Server Error'])
+            'body' => json_encode(['error' => $message])
         ];
     }
 
-    public function unprocessableEntityResponse()
+    private function unprocessableEntityResponse()
     {
         return [
             'status_code_header' => 'HTTP/1.1 422 Unprocessable Entity',
@@ -104,7 +115,7 @@ class RoleController {
         ];
     }
 
-    public function notFoundResponse()
+    private function notFoundResponse()
     {
         return [
             'status_code_header' => 'HTTP/1.1 404 Not Found',
@@ -112,3 +123,4 @@ class RoleController {
         ];
     }
 }
+?>
